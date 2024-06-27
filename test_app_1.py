@@ -4,8 +4,8 @@ import os
 import shutil
 import PyPDF2
 import openpyxl
-import tkinter as tk
-from tkinter import filedialog
+import Tkinter as tk
+from Tkinter import filedialog
 root = tk.Tk()
 root.withdraw()
 # Make folder picker dialog appear on top of other windows
