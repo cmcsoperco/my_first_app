@@ -17,7 +17,7 @@ with tabs[0]:
     with cols[0]:
         with st.container(border=True, height=600):
             # st.image(image="cbi_logo.png")
-            file = st.file_uploader("Import file", label_visibility='collapsed', type=["csv"])
+            file = st.file_uploader("Import file", label_visibility='collapsed', type=["csv","xlsx"])
     with cols[1]:
         with st.container(border=True, height=600):
             if(file == None):
