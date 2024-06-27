@@ -6,7 +6,7 @@ import PyPDF2
 import openpyxl
 
 #Page configure
-st.set_page_config(page_title="Field Wise File Maker", page_icon=":bar_chart:", layout="wide")
+st.set_page_config(page_title="Field Wise File Maker and PDF(206AB) to excel", page_icon=":bar_chart:", layout="wide")
 st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-IT, CCD)]")
 st.image(image="cbi_logo.png")
 
