@@ -4,12 +4,6 @@ import os
 import shutil
 import PyPDF2
 import openpyxl
-import Tkinter as tk
-from Tkinter import filedialog
-root = tk.Tk()
-root.withdraw()
-# Make folder picker dialog appear on top of other windows
-root.wm_attributes('-topmost', 1)
 
 
 #Page configure
@@ -77,69 +71,59 @@ with tabs[0]:
                         field_names_list = list(
                             df.pivot_table(index=[field_wise_file_name], aggfunc='count').index.values)
 
-                        #field_wise_file_path = os.getcwd().replace(chr(92), "/") + "/FIELD_WISE_FILEs/"
-                        save_to_path = filedialog.askdirectory(master=root)
-                        if(save_to_path == ""):
-                            st.warning(":red[Please select directory where to save the files]", icon="⚠️")
-                        else:
-                            field_wise_file_path = save_to_path + "/FIELD_WISE_FILEs/"
-                            if (os.path.exists(field_wise_file_path)):
-                                shutil.rmtree(field_wise_file_path, ignore_errors=True)
-                            os.makedirs(field_wise_file_path)
+                        field_wise_file_path = os.getcwd().replace(chr(92), "/") + "/FIELD_WISE_FILEs/"
+                        if (os.path.exists(field_wise_file_path)):
+                            shutil.rmtree(field_wise_file_path, ignore_errors=True)
+                        os.makedirs(field_wise_file_path)
 
-                            field_count = 1
-                            for field_name in field_names_list:
-                                st.write(field_count, ") File making for: ", field_name)
-                                if (field_name == ""):
-                                    # field_name = "blank_field"
-                                    df[df[field_wise_file_name] == field_name].to_csv(
-                                        field_wise_file_path + "Blank_Field_Name" + ".csv", index=False)
-                                else:
-                                    df[df[field_wise_file_name] == field_name].to_csv(
-                                        field_wise_file_path + str(field_name) + ".csv", index=False)
-                                field_count = field_count + 1
+                        field_count = 1
+                        for field_name in field_names_list:
+                            st.write(field_count, ") File making for: ", field_name)
+                            if (field_name == ""):
+                                # field_name = "blank_field"
+                                df[df[field_wise_file_name] == field_name].to_csv(
+                                    field_wise_file_path + "Blank_Field_Name" + ".csv", index=False)
+                            else:
+                                df[df[field_wise_file_name] == field_name].to_csv(
+                                    field_wise_file_path + str(field_name) + ".csv", index=False)
+                            field_count = field_count + 1
                             st.write("======== Files making done ========")
 
                     else:
                         folder_names_list = list(
                             df.pivot_table(index=[field_wise_folder_name], aggfunc='count').index.values)
-                        #path = os.getcwd().replace(chr(92), "/") + "/FIELD_WISE_FILEs_MAIN_FOLDER/"
-                        save_to_path_1 = filedialog.askdirectory(master=root)
-                        if (save_to_path_1 == ""):
-                            st.warning(":red[Please select directory where to save the files]", icon="⚠️")
-                        else:
-                            path = save_to_path_1 + "/FIELD_WISE_FILEs_MAIN_FOLDER/"
-                            if (os.path.exists(path)):
-                                shutil.rmtree(path, ignore_errors=True)
-                            os.makedirs(path)
+                        path = os.getcwd().replace(chr(92), "/") + "/FIELD_WISE_FILEs_MAIN_FOLDER/"
+                        if (os.path.exists(path)):
+                            shutil.rmtree(path, ignore_errors=True)
+                        os.makedirs(path)
 
-                            for folder_name in folder_names_list:
-                                st.write(folder_name)
-                                if (folder_name == ""):
-                                    folder_path = path + "Blank_Folder_Name" + "/"
+                        for folder_name in folder_names_list:
+                            st.write(folder_name)
+                            if (folder_name == ""):
+                                folder_path = path + "Blank_Folder_Name" + "/"
+                            else:
+                                folder_path = path + str(folder_name) + "/"
+
+                            if (os.path.exists(folder_path)):
+                                shutil.rmtree(folder_path, ignore_errors=True)
+                            os.makedirs(folder_path)
+
+                            field_wise_names_list = list(
+                                df[df[field_wise_folder_name] == folder_name].pivot_table(index=[field_wise_file_name],
+                                                                                          aggfunc='count').index.values)
+                            field_count_under_folder = 1
+                            for field_wise_name in field_wise_names_list:
+                                # print(field_wise_name)
+                                st.write(field_count_under_folder, ") File making for: ", field_wise_name)
+                                if (field_wise_name == ""):
+                                    df[df[field_wise_folder_name] == folder_name][
+                                        df[field_wise_file_name] == field_wise_name].to_csv(
+                                        folder_path + "Blank_Field_Name" + ".csv", index=False)
                                 else:
-                                    folder_path = path + str(folder_name) + "/"
-
-                                if (os.path.exists(folder_path)):
-                                    shutil.rmtree(folder_path, ignore_errors=True)
-                                os.makedirs(folder_path)
-
-                                field_wise_names_list = list(
-                                    df[df[field_wise_folder_name] == folder_name].pivot_table(index=[field_wise_file_name],
-                                                                                              aggfunc='count').index.values)
-                                field_count_under_folder = 1
-                                for field_wise_name in field_wise_names_list:
-                                    # print(field_wise_name)
-                                    st.write(field_count_under_folder, ") File making for: ", field_wise_name)
-                                    if (field_wise_name == ""):
-                                        df[df[field_wise_folder_name] == folder_name][
-                                            df[field_wise_file_name] == field_wise_name].to_csv(
-                                            folder_path + "Blank_Field_Name" + ".csv", index=False)
-                                    else:
-                                        df[df[field_wise_folder_name] == folder_name][
-                                            df[field_wise_file_name] == field_wise_name].to_csv(
-                                            folder_path + str(field_wise_name) + ".csv", index=False)
-                                    field_count_under_folder = field_count_under_folder + 1
+                                    df[df[field_wise_folder_name] == folder_name][
+                                        df[field_wise_file_name] == field_wise_name].to_csv(
+                                        folder_path + str(field_wise_name) + ".csv", index=False)
+                                field_count_under_folder = field_count_under_folder + 1
                             st.write("======== Files under Folder making done ========")
 with tabs[1]:
     #st.write('This is TAB-2')
