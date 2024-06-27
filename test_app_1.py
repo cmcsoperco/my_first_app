@@ -68,6 +68,4 @@ with tabs[1]:
             else:
                 st.warning(":red[You have not selected any pdf file]", icon="❌")
 
-#with tabs[2]:
-#    st.write('This is TAB-3')
 
