@@ -9,7 +9,7 @@ import openpyxl
 #Page configure
 st.set_page_config(page_title="Field Wise File Maker", page_icon=":bar_chart:", layout="wide")
 st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-IT, CCD)]")
-#st.image(image="cbi_logo.png")
+st.image(image="rm_logo.png")
 
 tabs = st.tabs(['Field Wise Files Making', '206AB pdf to excell making'])
 with tabs[0]:
