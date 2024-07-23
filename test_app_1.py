@@ -14,7 +14,7 @@ st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs'])
 
 #206AB PDF To Excell
 with tabs[0]:
