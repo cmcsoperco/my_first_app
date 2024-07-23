@@ -11,7 +11,7 @@ from io import BytesIO
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
 st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-IT, CCD)]")
-st.image(image="cbi_logo.png")
+st.image(image="rm_logo.png")
 
 #TABs
 tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF'])
