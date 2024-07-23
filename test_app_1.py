@@ -6,7 +6,7 @@ import PyPDF2
 import openpyxl
 from PyPDF2 import PdfMerger
 from io import BytesIO
-
+from json import loads, dumps
 
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
@@ -14,7 +14,7 @@ st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON'])
 
 #206AB PDF To Excell
 with tabs[0]:
@@ -30,7 +30,6 @@ with tabs[0]:
             if(files):
                 data_read = []
                 if (button_make_206AB_pdf_to_excel):
-                    result_file = "result__pdf_to_excel_206AB.xlsx"
                     for file in files:
                         temp_list = []
                         reader = PyPDF2.PdfReader(file)
@@ -57,7 +56,7 @@ with tabs[1]:
     cols_tab_1 = st.columns([2, 5])
     with cols_tab_1[0]:
         with st.container(border=True, height=560):
-            files = st.file_uploader("Import 206AB pdf files", accept_multiple_files=True, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            files = st.file_uploader("Import files to merge", accept_multiple_files=True, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
             merged_dfs = []
             if (files):
                 text_input_separator = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
@@ -87,8 +86,8 @@ with tabs[1]:
 
 #Merge PDFs
 with tabs[2]:
-    cols_tab_0 = st.columns([3,5])
-    with cols_tab_0[0]:
+    cols_tab_2 = st.columns([3,5])
+    with cols_tab_2[0]:
         with st.container(border=True, height=500):
             pdf_files = st.file_uploader("Import pdf files to merge", accept_multiple_files=True, label_visibility='collapsed', type=['pdf'])
             if(pdf_files):
@@ -101,3 +100,24 @@ with tabs[2]:
                 st.download_button(label="Merge PDFs and Download", data=byteIo, file_name="merged.pdf")
 
 #Split PDF
+with tabs[3]:
+    st.write(":green[Hello Sir,]")
+    st.write(":red[Development in progress...]")
+
+#Excel To JSON
+with tabs[4]:
+    cols_tab_4 = st.columns([2.5,5])
+    with cols_tab_4[0]:
+        with st.container(border=True, height=450):
+            df_json = []
+            excel_file = st.file_uploader("Import excel file to make json", accept_multiple_files=False, label_visibility='collapsed', type=['xlsx'])
+            if(excel_file):
+                df_json.append(pd.read_excel(excel_file))
+                json_content = df_json[0].to_json(orient="records")
+                parsed = loads(json_content)
+                json_output = dumps(parsed, indent=2)
+                st.download_button(label="Make JSON file and Download", data=json_output, file_name="your_json_file.json")
+    with cols_tab_4[1]:
+        with st.container(border=True, height=450):
+            if(excel_file):
+                st.dataframe(df_json[0])
