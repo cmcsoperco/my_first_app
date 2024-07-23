@@ -98,6 +98,6 @@ with tabs[2]:
 
                 byteIo = BytesIO()
                 merger.write(byteIo)
-                st.download_button(label="Download Merged PDF", data=byteIo, file_name="merged.pdf")
+                st.download_button(label="Merge PDFs and Download", data=byteIo, file_name="merged.pdf")
 
 #Split PDF
