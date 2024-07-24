@@ -112,7 +112,7 @@ with tabs[4]:
             df_json = []
             excel_file = st.file_uploader("Import excel file to make json", accept_multiple_files=False, label_visibility='collapsed', type=['xlsx'])
             if(excel_file):
-                df_json.append(pd.read_excel(excel_file))
+                df_json.append(pd.read_excel(excel_file, dtype={'major_head': 'str', 'minor_head': 'str'}))
                 json_content = df_json[0].to_json(orient="records")
                 parsed = loads(json_content)
                 json_output = dumps(parsed, indent=2)
