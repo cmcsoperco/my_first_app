@@ -112,7 +112,7 @@ with tabs[3]:
                 if(st.button("Split")):
                     byteIo_zip = BytesIO()
                     zip_object = zipfile.ZipFile(byteIo_zip,'w')
-                    pdf = PdfReader(file)
+                    pdf = PdfReader(pdf_file_to_be_split)
                     for page_number, page in enumerate(pdf.pages):
                         writer = PdfWriter()
                         writer.add_page(page)
