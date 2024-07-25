@@ -126,7 +126,7 @@ with tabs[3]:
                     zip_object.close()
                     #byteIo_zip.close()
                     st.warning(":green[PDF file splitting is completed😊]", icon="😊")
-                    st.download_button(label="Download", data=byteIo_zip, file_name="pdf_files.zip")
+                    st.download_button(label="Download Split Files", data=byteIo_zip, file_name="pdf_files.zip")
 
 #Excel To JSON
 with tabs[4]:
