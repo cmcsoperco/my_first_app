@@ -7,11 +7,14 @@ import openpyxl
 from PyPDF2 import PdfMerger
 from io import BytesIO
 from json import loads, dumps
+import zipfile
+from PyPDF2 import PdfReader, PdfWriter
+
 
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
 st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-IT, CCD)]")
-st.image(image="rm_logo.png")
+st.image(image="cbi_logo.png")
 
 #TABs
 tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON'])
@@ -101,8 +104,30 @@ with tabs[2]:
 
 #Split PDF
 with tabs[3]:
-    st.write(":green[Hello Sir,]")
-    st.write(":red[Development in progress...]")
+    cols_tab_3 = st.columns([2.5, 5])
+    with cols_tab_3[0]:
+        with st.container(border=True, height=450):
+            pdf_file_to_be_split = st.file_uploader("Import pdf file to split", accept_multiple_files=False, label_visibility='collapsed', type=['pdf'])
+            if (pdf_file_to_be_split):
+                if(st.button("Split")):
+                    byteIo_zip = BytesIO()
+                    zip_object = zipfile.ZipFile(byteIo_zip,'w')
+                    with open(pdf_file_to_be_split.name, 'rb') as file:
+                        pdf = PdfReader(file)
+                        for page_number, page in enumerate(pdf.pages):
+                            writer = PdfWriter()
+                            writer.add_page(page)
+                            output_filename = f'page_{page_number + 1}.pdf'
+                            temp_file = f'temp_{page_number + 1}.pdf'
+                            with open(temp_file, 'wb') as temp_output:
+                                writer.write(temp_output)
+
+                            zip_object.write(temp_file)
+                            os.remove(temp_file)
+                    zip_object.close()
+                    #byteIo_zip.close()
+                    st.warning(":green[PDF file splitting is completed😊]", icon="😊")
+                    st.download_button(label="Download", data=byteIo_zip, file_name="pdf_files.zip")
 
 #Excel To JSON
 with tabs[4]:
