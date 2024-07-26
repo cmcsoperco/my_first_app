@@ -17,7 +17,7 @@ st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making', 'Split File(txt, csv, excel)'])
 
 #206AB PDF To Excell
 with tabs[0]:
@@ -59,10 +59,10 @@ with tabs[1]:
     cols_tab_1 = st.columns([2, 5])
     with cols_tab_1[0]:
         with st.container(border=True, height=560):
-            files = st.file_uploader("Import files to merge", accept_multiple_files=True, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            files = st.file_uploader("Import files to merge(txt, csv, excel)", accept_multiple_files=True, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
             merged_dfs = []
             if (files):
-                text_input_separator_merge_files = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
+                text_input_separator_merge_files = st.text_input(label="Enter text separator_merge_files", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility="collapsed")
                 button_merge_files = st.button("Merge Files")
 
                 if(button_merge_files):
@@ -149,11 +149,11 @@ with tabs[5]:
     cols_tab_5 = st.columns([2, 5])
     with cols_tab_5[0]:
         with st.container(border=True, height=560):
-            text_input_separator_field_wise_files_making = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
+            text_input_separator_field_wise_files_making = st.text_input(label="Enter text separator_field_wise_files", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility="collapsed")
             separator = ","
             if (text_input_separator_field_wise_files_making != ""):
                 separator = text_input_separator_field_wise_files_making
-            file_to_make_field_wise_files = st.file_uploader("Import file", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            file_to_make_field_wise_files = st.file_uploader("Import file to field wise file making", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
             if (file_to_make_field_wise_files):
                 #@st.cache_resource()
                 def read_file(file_to_make_field_wise_files):
@@ -188,5 +188,72 @@ with tabs[5]:
     with cols_tab_5[1]:
         with st.container(border=True, height=560):
             if (file_to_make_field_wise_files):
+                st.warning(":green[For better experience, showing first 10000 records only]", icon="😊")
+                st.dataframe(df.head(10000))
+
+#File split(".txt", ".csv", ".xlsx")
+with tabs[6]:
+    cols_tab_6 = st.columns([3, 4])
+    with cols_tab_6[0]:
+        with st.container(border=True, height=570):
+            text_input_separator_file_split = st.text_input(label="Enter text separator_split_file", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility='collapsed')
+            separator = ","
+            if (text_input_separator_file_split != ""):
+                separator = text_input_separator_file_split
+            file_to_split = st.file_uploader("Import file to split(txt, csv, xlsx)", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            if (file_to_split):
+                def read_file(file_to_make_field_wise_files):
+                    if((file_to_make_field_wise_files.name.split(".")[-1].lower() == "csv") or (file_to_make_field_wise_files.name.split(".")[-1].lower() == "txt")):
+                        df = pd.read_csv(file_to_make_field_wise_files, low_memory=False, encoding_errors='ignore', sep=separator, keep_default_na=False)
+                    if(file_to_make_field_wise_files.name.split(".")[-1].lower() == "xlsx"):
+                        df = pd.read_excel(file_to_make_field_wise_files, keep_default_na=False)
+                    return df
+
+                df = read_file(file_to_split)
+                #######
+                cols_tab_6_1 = st.columns([1, 1])
+                with cols_tab_6_1[0]:
+                    with st.container(border=True, height=335):
+                        number_input_start_index_file_split = st.number_input(":blue[Enter start index :]", value=1, placeholder="Enter start index...", min_value=1)
+                        number_input_end_index_file_split = st.number_input(":blue[Enter end index :]", value=None, placeholder="Enter end index...", min_value=number_input_start_index_file_split + 1)
+                        btn_split_index_wise = st.button(":red[Split Index Wise]")
+                        if(btn_split_index_wise):
+                            if(number_input_end_index_file_split == None):
+                                st.warning(":red[End index should not be blank or less than start index]", icon="❌")
+                            else:
+                                data_index_wise = df[(int(number_input_start_index_file_split) - 1):int(number_input_end_index_file_split)].to_csv(index=False)
+                                st.download_button(":green[Download Index Wise Split File]", data=data_index_wise, file_name=f"split_file_range_{int(number_input_start_index_file_split)}_to_{number_input_end_index_file_split}.csv")
+
+                with cols_tab_6_1[1]:
+                    with st.container(border=True, height=335):
+                        number_input_records_per_file_file_split = st.number_input(":blue[Enter records per file :]", value=None, placeholder="Enter records per file...", min_value=1)
+                        btn_split_auto= st.button(":red[Auto Split]")
+                        if(btn_split_auto):
+                            if (number_input_records_per_file_file_split == None):
+                                st.warning(":red[End index should not be blank or less than 1]", icon="❌")
+                            else:
+                                loop_count = int((df.last_valid_index() + 1) / (int(number_input_records_per_file_file_split))) + 1
+
+                                byteIo_zip_auto_split = BytesIO()
+                                zip_object_auto_split = zipfile.ZipFile(byteIo_zip_auto_split, 'w')
+
+                                for i in range(loop_count):
+                                    start_index = int(number_input_records_per_file_file_split) * i
+                                    end_index = int(number_input_records_per_file_file_split) * (i + 1)
+                                    if (start_index == df.last_valid_index() + 1):
+                                        break
+                                    if (i == loop_count - 1):
+                                        end_index = df.last_valid_index() + 1
+                                    auto_split_file_name = str(i + 1) + "_" + "_Range_" + str(start_index + 1) + "_to_" + str(end_index) + ".csv"
+                                    df[start_index: end_index].to_csv(auto_split_file_name, index=False)
+                                    zip_object_auto_split.write(auto_split_file_name)
+                                    os.remove(auto_split_file_name)
+                                zip_object_auto_split.close()
+                                st.warning(f":green[😊Auto splitting per file {number_input_records_per_file_file_split} records is done]")
+                                st.download_button(label=":green[Download Auto Split Files]", data=byteIo_zip_auto_split, file_name="auto_split_files.zip")
+
+    with cols_tab_6[1]:
+        with st.container(border=True, height=560):
+            if (file_to_split):
                 st.warning(":green[For better experience, showing first 10000 records only]", icon="😊")
                 st.dataframe(df.head(10000))
