@@ -17,7 +17,7 @@ st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making'])
 
 #206AB PDF To Excell
 with tabs[0]:
@@ -62,15 +62,13 @@ with tabs[1]:
             files = st.file_uploader("Import files to merge", accept_multiple_files=True, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
             merged_dfs = []
             if (files):
-                text_input_separator = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
+                text_input_separator_merge_files = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
                 button_merge_files = st.button("Merge Files")
 
                 if(button_merge_files):
-
                     separator = ","
-                    if(text_input_separator != ""):
-                        separator = text_input_separator
-
+                    if(text_input_separator_merge_files != ""):
+                        separator = text_input_separator_merge_files
 
                     for file in files:
                         if((file.name.split(".")[-1].lower() == "csv") or (file.name.split(".")[-1].lower() == "txt")):
@@ -145,3 +143,50 @@ with tabs[4]:
         with st.container(border=True, height=450):
             if(excel_file):
                 st.dataframe(df_json[0])
+
+#Field Wise Files Making
+with tabs[5]:
+    cols_tab_5 = st.columns([2, 5])
+    with cols_tab_5[0]:
+        with st.container(border=True, height=560):
+            text_input_separator_field_wise_files_making = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)")
+            separator = ","
+            if (text_input_separator_field_wise_files_making != ""):
+                separator = text_input_separator_field_wise_files_making
+            file_to_make_field_wise_files = st.file_uploader("Import file", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            if (file_to_make_field_wise_files):
+                #@st.cache_resource()
+                def read_file(file_to_make_field_wise_files):
+                    if((file_to_make_field_wise_files.name.split(".")[-1].lower() == "csv") or (file_to_make_field_wise_files.name.split(".")[-1].lower() == "txt")):
+                        df = pd.read_csv(file_to_make_field_wise_files, low_memory=False, encoding_errors='ignore', sep=separator, keep_default_na=False)
+                    if(file_to_make_field_wise_files.name.split(".")[-1].lower() == "xlsx"):
+                        df = pd.read_excel(file_to_make_field_wise_files, keep_default_na=False)
+                    return df
+
+                df = read_file(file_to_make_field_wise_files)
+                field_wise_file_name = st.selectbox("Select field wise file name:", list(df.columns), index=None, placeholder="Select field...")
+                if(field_wise_file_name != None):
+                    button_make_field_wise_files = st.button(f"Make {field_wise_file_name} Wise Files")
+
+                    if(button_make_field_wise_files):
+                        byteIo_zip = BytesIO()
+                        zip_object = zipfile.ZipFile(byteIo_zip, 'w')
+
+                        field_names_list = list(df.pivot_table(index=[field_wise_file_name], aggfunc='count').index.values)
+                        for field_name in field_names_list:
+                            if (field_name == ""):
+                                fie_name = "blank_field.csv"
+                            else:
+                                fie_name = str(field_name) + ".csv"
+                            df[df[field_wise_file_name] == field_name].to_csv(fie_name, index=False)
+                            zip_object.write(fie_name)
+                            os.remove(fie_name)
+                        zip_object.close()
+                        st.warning(f":green[{field_wise_file_name} wise files making is completed😊]", icon="😊")
+                        st.download_button(label=f"Download {field_wise_file_name} Wise Files", data=byteIo_zip, file_name=f"{field_wise_file_name}_wise_files.zip")
+
+    with cols_tab_5[1]:
+        with st.container(border=True, height=560):
+            if (file_to_make_field_wise_files):
+                st.warning(":green[For better experience, showing first 10000 records only]", icon="😊")
+                st.dataframe(df.head(10000))
