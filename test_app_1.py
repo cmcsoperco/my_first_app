@@ -13,7 +13,7 @@ from PyPDF2 import PdfReader, PdfWriter
 
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
-st.subheader(":red[This site has been developed by]:green[ Rajib Mondal")
+st.subheader(":red[This site has been developed by]:green[ Rajib Mondal]")
 st.image(image="rm_logo.png")
 
 #TABs
