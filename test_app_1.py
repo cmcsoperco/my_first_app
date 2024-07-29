@@ -13,11 +13,11 @@ from PyPDF2 import PdfReader, PdfWriter
 
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
-st.subheader(":green[This site has been developed by]:red[ Rajib Mondal(Manager-IT, CCD)]")
+st.subheader(":green[This site has been developed by]:red[ Rajib Mondal")
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making', 'Split File(txt, csv, excel)'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making', 'Split File(txt, csv, excel)', 'Find and Remove Duplicates'])
 
 #206AB PDF To Excell
 with tabs[0]:
@@ -255,5 +255,53 @@ with tabs[6]:
     with cols_tab_6[1]:
         with st.container(border=True, height=560):
             if (file_to_split):
-                st.warning(":green[For better experience, showing first 10000 records only]", icon="😊")
+                st.warning(f"Total: :red[{df.last_valid_index() + 1}] 😊 :green[For better experience, showing first 10000 records only]")
+                st.dataframe(df.head(10000))
+
+#Find and Remove Duplicates
+with tabs[7]:
+    cols_tab_7 = st.columns([2, 4])
+    with cols_tab_7[0]:
+        with st.container(border=True, height=530):
+            text_input_separator_find_and_remove_dup = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility='collapsed')
+            separator = ","
+            if (text_input_separator_find_and_remove_dup != ""):
+                separator = text_input_separator_find_and_remove_dup
+            file_to_find_and_remove_dup = st.file_uploader("Import file to find and remove duplicates", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            if (file_to_find_and_remove_dup):
+                def read_file(file_to_make_field_wise_files):
+                    if((file_to_make_field_wise_files.name.split(".")[-1].lower() == "csv") or (file_to_make_field_wise_files.name.split(".")[-1].lower() == "txt")):
+                        df = pd.read_csv(file_to_make_field_wise_files, low_memory=False, encoding_errors='ignore', sep=separator, keep_default_na=False)
+                    if(file_to_make_field_wise_files.name.split(".")[-1].lower() == "xlsx"):
+                        df = pd.read_excel(file_to_make_field_wise_files, keep_default_na=False)
+                    return df
+
+                df = read_file(file_to_find_and_remove_dup)
+                ##########################################################
+                with st.container(border=True, height=290):
+                    cols_tab_7_1 = st.columns([2, 3])
+                    with cols_tab_7_1[0]:
+                        selectbox_find_or_remove_dups = st.selectbox(":green[Find or remove duplicates:]", ['Remove Duplicates', 'Find Duplicates'])
+                    with cols_tab_7_1[1]:
+                        #selectbox_duplicated_by_col = st.selectbox(":green[Select duplicated by col:]", list(df.columns), index=None, placeholder="Select duplicated by...")
+                        selectbox_duplicated_by_col = st.multiselect(":green[Select duplicated by columns:]", list(df.columns), placeholder="Select duplicated by...")
+
+                    st.markdown("");st.markdown("")
+                    if(selectbox_duplicated_by_col != []):
+                        if(selectbox_find_or_remove_dups == 'Remove Duplicates'):
+                            button_remove_dups = st.button(f":red[Remove duplicates by]")
+                            if(button_remove_dups):
+                                st.write("Removed duplicates😊 Please download the file👇")
+                                st.download_button(":green[Download Removed Duplicates]", data=df.drop_duplicates(subset=selectbox_duplicated_by_col).to_csv(index_label=False), file_name="removed_duplicates.csv")
+
+                        elif(selectbox_find_or_remove_dups == 'Find Duplicates'):
+                            button_find_dups = st.button(f":red[Find duplicates by]")
+                            if(button_find_dups):
+                                st.write("Found duplicates😊 Please download the file👇")
+                                st.download_button(":green[Download Found Duplicates]", data=df[df.duplicated(selectbox_duplicated_by_col, keep=False)].to_csv(index_label=False), file_name="found_duplicates.csv")
+
+    with cols_tab_7[1]:
+        with st.container(border=True, height=530):
+            if (file_to_find_and_remove_dup):
+                st.warning(f"Total: :red[{df.last_valid_index() + 1}] 😊 :green[For better experience, showing first 10000 records only]")
                 st.dataframe(df.head(10000))
