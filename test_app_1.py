@@ -13,11 +13,11 @@ from PyPDF2 import PdfReader, PdfWriter
 
 #Page configure
 st.set_page_config(page_title="Data Analysis", layout="wide")
-st.subheader(":red[This site has been developed by]:green[ Rajib Mondal]")
+st.subheader(":green[This site has been developed by]:red[ Rajib Mondal]")
 st.image(image="rm_logo.png")
 
 #TABs
-tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making', 'Split File(txt, csv, excel)', 'Find and Remove Duplicates'])
+tabs = st.tabs(['206AB PDF To Excell', 'Merge Files(txt, csv, excel)', 'Merge PDFs', 'Split PDF', 'Excel To JSON', 'Field Wise Files Making', 'Split File(txt, csv, excel)', 'Find and Remove Duplicates', 'Make Summary'])
 
 #206AB PDF To Excell
 with tabs[0]:
@@ -263,7 +263,7 @@ with tabs[7]:
     cols_tab_7 = st.columns([2, 4])
     with cols_tab_7[0]:
         with st.container(border=True, height=530):
-            text_input_separator_find_and_remove_dup = st.text_input(label="", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility='collapsed')
+            text_input_separator_find_and_remove_dup = st.text_input(label="Enter text separator_find_and_remove_dups", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility='collapsed')
             separator = ","
             if (text_input_separator_find_and_remove_dup != ""):
                 separator = text_input_separator_find_and_remove_dup
@@ -305,3 +305,64 @@ with tabs[7]:
             if (file_to_find_and_remove_dup):
                 st.warning(f"Total: :red[{df.last_valid_index() + 1}] 😊 :green[For better experience, showing first 10000 records only]")
                 st.dataframe(df.head(10000))
+
+
+#Make Summary
+with tabs[8]:
+    cols_tab_8 = st.columns([2.5, 3, 3])
+    with cols_tab_8[0]:
+        with st.container(border=True, height=530):
+            text_input_separator_find_and_remove_dup = st.text_input(label="Enter text separator_make_summary", placeholder="Enter text separator for text/csv file (comma is default)", label_visibility='collapsed')
+            separator = ","
+            if (text_input_separator_find_and_remove_dup != ""):
+                separator = text_input_separator_find_and_remove_dup
+            file_to_find_and_remove_dup = st.file_uploader("Import file to make summary: ", accept_multiple_files=False, label_visibility='collapsed', type=['csv', 'txt', 'xlsx'])
+            if (file_to_find_and_remove_dup):
+                def read_file(file_to_make_field_wise_files):
+                    if((file_to_make_field_wise_files.name.split(".")[-1].lower() == "csv") or (file_to_make_field_wise_files.name.split(".")[-1].lower() == "txt")):
+                        df = pd.read_csv(file_to_make_field_wise_files, low_memory=False, encoding_errors='ignore', sep=separator, keep_default_na=False)
+                    if(file_to_make_field_wise_files.name.split(".")[-1].lower() == "xlsx"):
+                        df = pd.read_excel(file_to_make_field_wise_files, keep_default_na=False)
+                    return df
+
+                df = read_file(file_to_find_and_remove_dup)
+                ##########################################################
+                df_summary = []
+                with st.container(border=True, height=290):
+                    radio_btns_count_mean_sum = st.radio("", options=[":red[count]", ":red[mean]", ":red[sum]"], horizontal=True, label_visibility='collapsed')
+
+                    cols_tab_8_1 = st.columns([1, 1])
+                    with cols_tab_8_1[0]:
+                        multi_select_groupby_index_cols = st.multiselect(":green[Select GROUP-BY(INDEX) columns:]", list(df.columns), placeholder="Select groupby index...")
+                    with cols_tab_8_1[1]:
+                        multi_select_groupby_value_cols = st.multiselect(":green[Select GROUP-BY(VALUE) columns:]", list(df.columns), placeholder="Select groupby value...")
+
+                    if(multi_select_groupby_index_cols != [] and multi_select_groupby_value_cols != []):
+                        if (st.button(":green[Make Summary]")):
+                            if(radio_btns_count_mean_sum == ":red[count]"):
+                                df_summary.append(df.groupby(multi_select_groupby_index_cols)[multi_select_groupby_value_cols].count())
+                            if (radio_btns_count_mean_sum == ":red[mean]"):
+                                temp_char_type_cols = []
+                                for i in multi_select_groupby_value_cols:
+                                    if(i in list(df.select_dtypes(['object']).columns)):
+                                        temp_char_type_cols.append(i)
+
+                                if(len(temp_char_type_cols) > 0):
+                                    st.warning(f":red[Can not summarise MEAN for CHAR type fields: ]{temp_char_type_cols}", icon="❌")
+                                else:
+                                    df_summary.append(df.groupby(multi_select_groupby_index_cols)[multi_select_groupby_value_cols].mean())
+                            if (radio_btns_count_mean_sum == ":red[sum]"):
+                                df_summary.append(df.groupby(multi_select_groupby_index_cols)[multi_select_groupby_value_cols].sum())
+
+    with cols_tab_8[1]:
+        with st.container(border=True, height=530):
+            if (file_to_find_and_remove_dup):
+                st.warning(f"Total: :red[{df.last_valid_index() + 1}] 😊 :green[For better experience, showing first 10000 records only]")
+                st.dataframe(df.head(10000))
+
+    with cols_tab_8[2]:
+        with st.container(border=True, height=530):
+            if (file_to_find_and_remove_dup):
+                if(len(df_summary) > 0):
+                    st.warning("😊 :green[Your Summary:]")
+                    st.dataframe(df_summary[0])
